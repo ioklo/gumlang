@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29020.237
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GumLang", "GumLang.fsproj", "{0BBDEDB5-0344-4740-9401-0DEFBA3263C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0BBDEDB5-0344-4740-9401-0DEFBA3263C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBDEDB5-0344-4740-9401-0DEFBA3263C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBDEDB5-0344-4740-9401-0DEFBA3263C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBDEDB5-0344-4740-9401-0DEFBA3263C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EFC150EB-9230-48C2-B191-B7BD3942A895}
+	EndGlobalSection
+EndGlobal
