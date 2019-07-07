@@ -1,0 +1,183 @@
+﻿%{
+    open Syntax
+%}
+
+%start start
+%token EQUALS COMMA SEMICOLON COLON LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
+%token PLUSPLUS MINUSMINUS EQUALEQUAL EXCLEQUAL LTEQUAL GTEQUAL AMPERAMPER BARBAR QUESTIONQUESTION 
+%token PLUS MINUS STAR SLASH EXCL AMPER BAR QUESTION DOT LT GT 
+
+%token CLASS STRUCT INTERFACE PUBLIC PROTECTED NEW VIRTUAL OVERRIDE BASE OPERATOR STATIC IS NULLTOKEN TRUE FALSE OUT PARAMS
+%token YIELD RETURN BREAK CONTINUE WHERE
+%token IF ELSE DO WHILE FOR FOREACH IN ASYNC LAUNCH AWAIT
+
+%token <System.Int32> DIGITS
+%token <System.String> ID
+
+%token FIRST_ID_CHAR REST_ID_CHAR
+%token STRING
+
+%token EOF
+
+%type <FileUnit> start
+
+%%
+start: fileUnit { $1 }
+
+// 첫 ID는 where이다, 두번째 ID는 TypeVar이다
+typeParamConstraint
+	: WHERE ID COLON typeIDsRev { { TypeParamConstraint.typeVar = $2; constraintTypes = $4 } }
+
+tupleItemTypeID
+    : typeID { { TupleTypeElem.elemType = $1; name = None } }
+    | typeID ID { { TupleTypeElem.elemType = $1; name = Some $2 } }
+
+tupleItemTypesRev
+    : tupleItemTypeID { [$1] }
+    | tupleItemTypesRev COMMA tupleItemTypeID { $3::$1 }
+
+tupleItemTypes2Rev
+    : tupleItemTypesRev COMMA tupleItemTypeID { $3::$1 }
+
+unionTypesRev
+    : typeID { [$1] }
+    | unionTypesRev BAR typeID { $3::$1 }
+
+unionTypes2Rev
+    : unionTypesRev BAR typeID { $3::$1 }
+
+typeIDsRev
+    : typeID { [$1] }
+    | typeIDsRev COMMA typeID { $3::$1 }
+
+optionalTypeArgs
+    : { [] }
+    | LT typeIDsRev GT { List.rev($2) }
+
+optionalQuestion
+    : { false }
+    | QUESTION { true }
+
+// TODO: >> 조심
+typeID
+	: ID optionalTypeArgs optionalQuestion     
+    {  
+        let literalTypeID = { LiteralTypeID.name = $1 }
+        let typeInstID: TypeID = 
+            if $2 <> [] then 
+                TypeInst { typeID = literalTypeID; typeArgs = $2 }
+            else
+                Literal literalTypeID
+        let nullableTypeID = 
+            if $3 then Nullable { typeID = typeInstID }
+            else typeInstID
+
+        nullableTypeID
+    }
+    | LPAREN RPAREN { Tuple { elems = [] } } 
+	| LPAREN tupleItemTypes2Rev RPAREN { Tuple { elems = List.rev($2) } } 
+    | LPAREN unionTypes2Rev RPAREN { Union { elems = List.rev($2) } }
+
+typeParamConstraintsRev
+    : typeParamConstraint { [$1] }
+    | typeParamConstraintsRev typeParamConstraint { $2::$1 }
+
+optionalTypeParamConstraints
+    : { [] }
+    | typeParamConstraintsRev { List.rev($1) }
+
+typeParam
+	: optionalParams ID { { TypeParam.bParams = $1; name = $2 }  }
+
+typeParamsRev
+    : typeParam { [$1] }
+    | typeParamsRev COMMA typeParam { $3::$1 }
+
+typeParams
+    : typeParamsRev { List.rev($1) }
+
+optionalTypeParamsAndConstraints
+    : { ([], []) }
+    | LT typeParams GT optionalTypeParamConstraints { ($2, $4) }
+
+optionalBaseTypeDecl
+    : { [] }
+    | COLON typeIDsRev { List.rev($2) }
+
+interfaceMemberDecl
+    : interfaceFuncDecl { FuncDecl $1 }
+
+optionalStatic
+    : { false }
+    | STATIC { true }
+
+optionalAsync
+    : { false }
+    | ASYNC { true }
+
+optionalParams
+    : { false }
+    | PARAMS { true }
+
+optionalOut
+    : { false }
+    | OUT { true }
+
+optionalAmper
+    : { false }
+    | AMPER { true }
+
+funcParam
+	: optionalParams optionalOut typeID optionalAmper ID { { FuncParam.bParams = $1; bOut = $2; typeID = $3; bRef = $4; name = $5 } }
+
+funcParamsRev
+    : funcParam { [$1] }
+    | funcParamsRev funcParam { $2::$1 }
+
+optionalFuncParams
+    : { [] }
+    | funcParamsRev { List.rev($1) }
+
+interfaceFuncDecl
+	: optionalStatic optionalAsync typeID ID LPAREN optionalFuncParams RPAREN SEMICOLON 
+    { 
+        {
+            InterfaceMemberFuncDecl.bStatic = $1
+            bAsync = $2
+            retType = $3
+            name = $4
+            funcParams = $6
+        }
+    } 
+
+interfaceMemberDeclsRev
+    : interfaceMemberDecl { [$1] }
+    | interfaceMemberDeclsRev interfaceMemberDecl { $2::$1 }
+
+interfaceMemberDecls
+    : { [] }
+    | interfaceMemberDeclsRev { List.rev($1) }
+
+interfaceDecl: 
+    | INTERFACE ID optionalTypeParamsAndConstraints optionalBaseTypeDecl LBRACE interfaceMemberDecls RBRACE 
+    { 
+        let (typeParams, typeParamConstraints) = $3
+
+        { 
+            InterfaceDecl.name = $2
+            typeParams = typeParams
+            typeParamConstraints = typeParamConstraints
+            baseTypes = $4
+            memberDecls = $6
+        }
+    }
+
+fileUnitItem: 
+	| interfaceDecl { Interface $1 }
+
+fileUnitItemsRev
+    : fileUnitItem { [$1] }
+    | fileUnitItemsRev fileUnitItem { $2::$1 }
+
+fileUnit: fileUnitItemsRev EOF { { FileUnit.elems = List.rev($1) } }
+    | EOF { { FileUnit.elems = [] } }

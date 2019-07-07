@@ -15,78 +15,78 @@ type Accessibility =
     | PublicGet
     | Public
 
-and ObjectInfoRuntimeContext = {
+and RuntimeObjectInfo = {
     mutable totalTypeParamCount: int
 
     mutable memberVars: VarInfoContext list
-    mutable memberFuncs: FuncInfoContext list
+    mutable memberFuncs: FuncInfo list
 
     // ObjectInfo가 만들어 지고 난 다음에 계산되는 것
     mutable baseType: Type
     mutable InterfaceTypes: Type list
 
-    mutable virtualFuncTable: FuncInfoContext list
-    mutable interfaceVirtualFuncTables: FuncInfoContext list list
+    mutable virtualFuncTable: FuncInfo list
+    mutable interfaceVirtualFuncTables: FuncInfo list list
 }
 
-and ObjectInfoContext = {
+and ObjectInfo = {
     name: string
-    typeParams: TypeParamInfoContext list
+    typeParams: TypeParamInfo list
     extraSize: int
 
-    mutable runtimeData: ObjectInfoRuntimeContext option
+    mutable runtimeData: RuntimeObjectInfo option
 }
 
-and FuncInfoRuntimeContext = {
+and RuntimeFuncInfo = {
     mutable totalTypeParamCount: int
 
     // Link 이후에 사용가능해지는 것들
     mutable virtualFuncIndex: int
 }
 
-and FuncInfoContext = {
+and FuncInfo = {
     name: string;
 
     accessibility: Accessibility;
     funcKind: FuncKind;
     syncOption: SyncOption;
 
-    contextObj: ObjectInfoContext;
-    TypeParams : TypeParamInfoContext list;
-    FuncType: FuncTypeContext;    
+    contextObj: ObjectInfo;
+    TypeParams : TypeParamInfo list;
+    FuncType: FuncType;    
 
     // 계산 되는 것들
-    mutable runtimeData: FuncInfoRuntimeContext option
+    mutable runtimeData: RuntimeFuncInfo option
 }
 
 and VarInfoContext = {    
     accessibility: Accessibility;
-    contextObj: ObjectInfoContext
+    contextObj: ObjectInfo
     varType: Type;
     name: string
 }
 
-and TypeParamInfoContext = {
+and TypeParamInfo = {
     bParams: bool;
     name: string
 }
 
 and Type = 
-    | ObjectType of ObjectTypeContext
-    | TupleType of TupleTypeContext
-    | UnionType of UnionTypeContext
-    | FuncType of FuncTypeContext
-    | RefType of RefTypeContext
-    | TypeVar of TypeVarContext
+    | Object of ObjectType
+    | Tuple of TupleType
+    | Union of UnionType
+    | Func of FuncType
+    | Ref of RefType
+    | Var of TypeVar
 
-and ObjectTypeContext = { objectInfo: ObjectInfoContext; typeArgs: Type list }
+and ObjectType = { objectInfo: ObjectInfo; typeArgs: Type list }
 and TupleTypeItem = { bParams: bool; itemType: Type; name: string }
-and TupleTypeContext = { itemTypes: TupleTypeItem list }
-and UnionTypeContext = { types: Type list }
-and FuncTypeContext = { retType: Type; paramType: Type }
-and RefTypeContext = { bOut: bool; targetType: Type }
-and TypeVarContext = { typeParamInfo: TypeParamInfoContext }
+and TupleType = { itemTypes: TupleTypeItem list }
+and UnionType = { types: Type list }
+and FuncType = { retType: Type; paramType: Type }
+and RefType = { bOut: bool; targetType: Type }
+and TypeVar = { typeParamInfo: TypeParamInfo }
 
 
-type FuncInst = { funcInfo: FuncInfoContext; typeArgs: Type list}
+type FuncInst = { funcInfo: FuncInfo; typeArgs: Type list}
 

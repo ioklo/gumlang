@@ -1,0 +1,110 @@
+﻿{
+open System
+open FSharp.Text.Lexing
+open Parser
+
+let newline (lexbuf: LexBuffer<_>) = 
+    lexbuf.StartPos <- lexbuf.StartPos.NextLine
+
+let lexeme (lexbuf: LexBuffer<_>) =
+    LexBuffer<_>.LexemeString lexbuf
+
+}
+
+let digit = ['0'-'9']
+let whitespace = [' ' '\t' ]
+let newline = ('\n' | '\r' '\n')
+
+let line_comment = '/' '/' [^'\n']* ('\n'|eof)
+// let block_comment = "/*" .*? "*/"
+
+
+rule token = parse
+    | whitespace     { token lexbuf }
+    | line_comment   { token lexbuf }
+    // | block_comment  { token lexbuf }
+    | newline        { newline lexbuf; token lexbuf }
+    | ['-']?digit+   { DIGITS (Int32.Parse(lexeme lexbuf)) }
+    | ','            { COMMA }
+    | '['            { LBRACKET }
+    | ']'            { RBRACKET }
+    | eof            { EOF }
+    | '='    { EQUALS }
+    | ','    { COMMA }
+    | ';'    { SEMICOLON }
+    | ':'    { COLON }
+    | '('    { LPAREN }
+    | ')'    { RPAREN }
+    | '{'    { LBRACE }
+    | '}'    { RBRACE }
+    | '['    { LBRACKET }
+    | ']'    { RBRACKET }
+
+    | "++"    { PLUSPLUS }
+    | "--"    { MINUSMINUS }
+
+    | "=="    { EQUALEQUAL }
+    | "!="    { EXCLEQUAL }
+    | "<="    { LTEQUAL }
+    | ">="    { GTEQUAL }
+
+    | "&&"    { AMPERAMPER }
+    | "||"    { BARBAR }
+    | "??"    { QUESTIONQUESTION }
+
+    | '+'    { PLUS }
+    | '-'    { MINUS }
+    | '*'    { STAR }
+    | '/'    { SLASH }
+    | '!'    { EXCL }
+    | '&'    { AMPER }
+    | '|'    { BAR }
+    | '?'    { QUESTION }
+    | '.'    { DOT }
+    | '<'    { LT }
+    | '>'    { GT }
+
+// keywords
+    | "class"    { CLASS }
+    | "struct"    { STRUCT }
+    | "interface"    { INTERFACE }
+    | "public"    { PUBLIC }
+    | "protected"    { PROTECTED }
+    | "new"    { NEW }
+    | "virtual"    { VIRTUAL }
+    | "override"    { OVERRIDE }
+    | "base"    { BASE }
+    | "operator"    { OPERATOR }
+    | "static"    { STATIC }
+    | "is"    { IS }
+    | "null"    { NULLTOKEN }
+
+    | "true"    { TRUE }
+    | "false"    { FALSE }
+    | "out"    { OUT }
+    | "params"    { PARAMS }
+
+    | "yield"    { YIELD }
+    | "return"    { RETURN }
+    | "break"    { BREAK }
+    | "continue"    { CONTINUE }
+
+    | "if"    { IF }
+    | "else"    { ELSE }
+
+    | "do"    { DO }
+    | "while"    { WHILE }
+    | "for"    { FOR }
+    | "foreach"    { FOREACH }
+    | "in"    { IN }
+    | "async"    { ASYNC }
+    | "await"    { AWAIT }
+    | "launch"   { LAUNCH }
+    | "where"    { WHERE }
+    | ['a'-'z''A'-'Z']['0'-'9''a'-'z''A'-'Z']* { ID (lexeme lexbuf) }
+
+// "" .. \" 만 안나오면 
+//  | '"' (~["]|'\\"')* '"'    { STRING }
+
+
+

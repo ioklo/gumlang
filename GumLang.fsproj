@@ -8,7 +8,24 @@
   <ItemGroup>
     <Compile Include="Core.fs" />
     <Compile Include="Syntax.fs" />
+    <FsYacc Include="Parser.fsy">
+      <OtherFlags>--module Parser -v</OtherFlags>
+    </FsYacc>
+    <FsLex Include="Lexer.fsl">
+      <OtherFlags>--module Lexer --unicode</OtherFlags>
+    </FsLex>
+    <Compile Include="Parser.fs" />
+    <Compile Include="Lexer.fs" />
+    
+    <Compile Include="Semantics.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
+
+  <ItemGroup />
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.3.4" />
+    <PackageReference Include="FsLexYacc" Version="9.0.2" />
+  </ItemGroup>  
 
 </Project>

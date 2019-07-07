@@ -2,13 +2,28 @@
 
 open System
 open Syntax
+open Semantics
 
-let Execute (stmts: Stmt list) = ()
+open FSharp.Text.Lexing
+
+let parse str = 
+    let rec printList list =
+        match list with
+        | hd::tl -> printfn "%d " hd ; printList tl
+        | [] -> ()
+
+    let lexbuf = LexBuffer<char>.FromString str
+    let lst = Parser.start Lexer.token lexbuf
+    0
 
 [<EntryPoint>]
 let main argv =    
-    let intInfo: Core.ObjectInfoContext = { name = "int"; typeParams = []; extraSize = 0; runtimeData = None }
-    let intType = Core.Type.ObjectType { objectInfo = intInfo; typeArgs = [] }
-    let stmts = [Stmt.VarDeclStmt { bImplicitType = false; varType = intType;  items = [ { name = "a"; exp = None } ] } ]
-    Execute stmts; 0
+    let str = "
+    interface A 
+    {
+        (A | B) S(out int& x);
+    }
+"
+    parse str
+    
 
