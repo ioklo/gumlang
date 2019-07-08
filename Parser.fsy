@@ -30,7 +30,7 @@ start: fileUnit { $1 }
 
 // 첫 ID는 where이다, 두번째 ID는 TypeVar이다
 typeParamConstraint
-	: WHERE ID COLON typeIDsRev { { TypeParamConstraint.typeVar = $2; constraintTypes = $4 } }
+    : WHERE ID COLON typeIDsRev { { TypeParamConstraint.typeVar = $2; constraintTypes = $4 } }
 
 tupleElemTypeID
     : typeID { { TupleTypeElem.elemType = $1; name = None } }
@@ -64,7 +64,7 @@ optionalQuestion
 
 // TODO: >> 조심
 typeID
-	: ID optionalTypeArgs optionalQuestion     
+    : ID optionalTypeArgs optionalQuestion     
     {  
         let literalTypeID = { LiteralTypeID.name = $1 }
         let typeInstID: TypeID = 
@@ -79,7 +79,7 @@ typeID
         nullableTypeID
     }
     | LPAREN RPAREN { Tuple { elems = [] } } 
-	| LPAREN tupleElemTypes2Rev RPAREN { Tuple { elems = List.rev($2) } } 
+    | LPAREN tupleElemTypes2Rev RPAREN { Tuple { elems = List.rev($2) } } 
     | LPAREN unionTypes2Rev RPAREN { Union { elems = List.rev($2) } }
 
 varOrtypeID
@@ -95,7 +95,7 @@ optionalTypeParamConstraints
     | typeParamConstraintsRev { List.rev($1) }
 
 typeParam
-	: optionalParams ID { { TypeParam.bParams = $1; name = $2 }  }
+    : optionalParams ID { { TypeParam.bParams = $1; name = $2 }  }
 
 typeParamsRev
     : typeParam { [$1] }
@@ -140,7 +140,7 @@ optionalAmper
     | AMPER { true }
 
 funcParam
-	: optionalParams optionalOut typeID optionalAmper ID { { FuncParam.bParams = $1; bOut = $2; typeID = $3; bRef = $4; name = $5 } }
+    : optionalParams optionalOut typeID optionalAmper ID { { FuncParam.bParams = $1; bOut = $2; typeID = $3; bRef = $4; name = $5 } }
 
 funcParamsRev
     : funcParam { [$1] }
@@ -151,7 +151,7 @@ optionalFuncParams
     | funcParamsRev { List.rev($1) }
 
 interfaceFuncDecl
-	: optionalStatic optionalAsync typeID ID LPAREN optionalFuncParams RPAREN SEMICOLON 
+    : optionalStatic optionalAsync typeID ID LPAREN optionalFuncParams RPAREN SEMICOLON 
     { 
         {
             InterfaceMemberFuncDecl.bStatic = $1
@@ -198,52 +198,52 @@ varDeclStmt: varDecl SEMICOLON { Stmt.VarDecl $1 }
 
 varDeclElem
     : ID { { VarDeclElem.name = $1; exp = None } }
-	| ID EQUALS exp { { name = $1; exp = Some $3 } }
+    | ID EQUALS exp { { name = $1; exp = Some $3 } }
 
 varDeclElemsRev
     : varDeclElem { [$1] }
     | varDeclElemsRev COMMA varDeclElem { $3::$1 }
 
 varDecl
-	: varOrtypeID varDeclElemsRev { { varType = $1; varDeclElems = List.rev($2) } }
+    : varOrtypeID varDeclElemsRev { { varType = $1; varDeclElems = List.rev($2) } }
 
 returnStmt
     : RETURN SEMICOLON { Stmt.Return { exp = None } }
-	| RETURN exp SEMICOLON { Stmt.Return { exp = Some $2 } }
+    | RETURN exp SEMICOLON { Stmt.Return { exp = Some $2 } }
 
 continueStmt: CONTINUE SEMICOLON { Stmt.Continue }
 
 breakStmt: BREAK SEMICOLON { Stmt.Break }
 
 ifStmt
-	: IF LPAREN exp RPAREN stmt                     { Stmt.If { cond = $3; trueBody = $5; falseBody = None } }
-	| IF LPAREN exp RPAREN stmt ELSE stmt           { Stmt.If { cond = $3; trueBody = $5; falseBody = Some $7 } }
+    : IF LPAREN exp RPAREN stmt                     { Stmt.If { cond = $3; trueBody = $5; falseBody = None } }
+    | IF LPAREN exp RPAREN stmt ELSE stmt           { Stmt.If { cond = $3; trueBody = $5; falseBody = Some $7 } }
 
 typeGuardStmt
     : IF LPAREN idExp IS typeID RPAREN stmt           { Stmt.TypeGuard { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = None } } 
     | IF LPAREN idExp IS typeID RPAREN stmt ELSE stmt { Stmt.TypeGuard { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = Some $9 } }
 
 whileStmt
-	: WHILE LPAREN exp RPAREN stmt { Stmt.While { cond = $3; body = $5 } }
+    : WHILE LPAREN exp RPAREN stmt { Stmt.While { cond = $3; body = $5 } }
 
 doWhileStmt
-	: DO stmt WHILE LPAREN exp RPAREN { Stmt.DoWhile { body = $2; cond = $5 } }
+    : DO stmt WHILE LPAREN exp RPAREN { Stmt.DoWhile { body = $2; cond = $5 } }
 
 optionalForInit
-	:         { None }
+    :         { None }
     | varDecl { Some (Stmt.VarDecl $1) }
-	| exp     { Some (Stmt.Exp { exp = $1 } ) }
+    | exp     { Some (Stmt.Exp { exp = $1 } ) }
 
 optionalExp
     :     { None }
     | exp { Some $1 }
 
 forStmt
-	: FOR LPAREN optionalForInit SEMICOLON optionalExp SEMICOLON optionalExp RPAREN stmt
+    : FOR LPAREN optionalForInit SEMICOLON optionalExp SEMICOLON optionalExp RPAREN stmt
     { Stmt.For { initializer = $3; cond = $5; condExp = $7; body= $9 } }
 
 foreachStmt
-	: FOREACH optionalTypeParams LPAREN varOrtypeID ID IN exp RPAREN stmt
+    : FOREACH optionalTypeParams LPAREN varOrtypeID ID IN exp RPAREN stmt
     { Stmt.Foreach { typeParams = $2; elemType = $4; elemName = $5; enumExp = $7; body = $9 } }
 
 expStmt
@@ -254,19 +254,19 @@ yieldBreakStmt: YIELD BREAK SEMICOLON { Stmt.YieldBreak }
 yieldReturnStmt: YIELD RETURN exp SEMICOLON {Stmt.YieldReturn { exp = $3 } }
 
 stmt
-	: blankStmt { $1 }
-	| blockStmt { $1 }
-	| varDeclStmt { $1 }
-	| returnStmt { $1 }
-	| continueStmt { $1 }
-	| breakStmt { $1 }
-	| ifStmt { $1 }
+    : blankStmt { $1 }
+    | blockStmt { $1 }
+    | varDeclStmt { $1 }
+    | returnStmt { $1 }
+    | continueStmt { $1 }
+    | breakStmt { $1 }
+    | ifStmt { $1 }
     | typeGuardStmt { $1 }
-	| whileStmt { $1 }
-	| doWhileStmt { $1 }
-	| forStmt { $1 }
-	| foreachStmt { $1 }
-	| expStmt { $1 }
+    | whileStmt { $1 }
+    | doWhileStmt { $1 }
+    | forStmt { $1 }
+    | foreachStmt { $1 }
+    | expStmt { $1 }
     | yieldBreakStmt { $1 }
     | yieldReturnStmt { $1 }
 
@@ -285,20 +285,20 @@ tupleElemExps2Rev
 idExp: ID optionalTypeArgs { { name = $1; typeArgs = $2 } }
 
 argument
-	: optionalOut exp { { bOut = $1; exp = $2 } }
+    : optionalOut exp { { bOut = $1; exp = $2 } }
 
 primitiveExp
     : NULLTOKEN { Exp.NullLiteral }
     | DIGITS    { Exp.IntLiteral { value = $1 } }
-	| TRUE      { Exp.BoolLiteral { value = true } }
+    | TRUE      { Exp.BoolLiteral { value = true } }
     | FALSE     { Exp.BoolLiteral { value = false } }
-	| STRING    { Exp.StringLiteral { value = $1 } }
-	| expList   { Exp.ListConstructor { elems = $1 } }
-	| LPAREN tupleElemExps2Rev RPAREN { Exp.TupleConstructor { elems = List.rev($2) } }
+    | STRING    { Exp.StringLiteral { value = $1 } }
+    | expList   { Exp.ListConstructor { elems = $1 } }
+    | LPAREN tupleElemExps2Rev RPAREN { Exp.TupleConstructor { elems = List.rev($2) } }
     | LPAREN RPAREN { Exp.TupleConstructor { elems = [] } }
-	| idExp                    { Exp.ID $1 }
+    | idExp                    { Exp.ID $1 }
     | LPAREN exp RPAREN        { $2 } 
-	| NEW typeID funcArguments { Exp.New { objectType = $2; args = $3} }
+    | NEW typeID funcArguments { Exp.New { objectType = $2; args = $3} }
 
 argumentsRev
     : argument { [$1] }
@@ -321,58 +321,58 @@ expList
 // 1.x, false.toString(), a().e, a.x, (2 + 3).e, new p().x, x.x.x, x = y.p, 2 + 3.e
 // 1(x), v(p), a.p(e) => (a.p)(e) a * e(2) e()()
 elementExp
-	: primitiveExp { $1 }
+    : primitiveExp { $1 }
     | elementExp expList { Exp.Indexer { operands = $2 } }
-	| elementExp DOT idExp     { Exp.Member { exp = $1; id = $3 } }
-	| elementExp funcArguments { Exp.Call { funcExp = $1; args = $2 } }
+    | elementExp DOT idExp     { Exp.Member { exp = $1; id = $3 } }
+    | elementExp funcArguments { Exp.Call { funcExp = $1; args = $2 } }
 
 unaryExp
-	: elementExp { $1 }
+    : elementExp { $1 }
     | elementExp PLUSPLUS    { Exp.UnaryOperator { kind = UnaryOperatorKind.PlusPlus;   operand = $1 } }
     | elementExp MINUSMINUS  { Exp.UnaryOperator { kind = UnaryOperatorKind.MinusMinus; operand = $1 } }
     | AWAIT exp { Exp.Await { exp = $2 } }
-	| EXCL elementExp { Exp.UnaryOperator { kind = UnaryOperatorKind.Excl; operand = $2 } }
+    | EXCL elementExp { Exp.UnaryOperator { kind = UnaryOperatorKind.Excl; operand = $2 } }
 
 multiplicativeExp
-	: unaryExp { $1 }
+    : unaryExp { $1 }
     | multiplicativeExp STAR multiplicativeExp  { Exp.BinaryOperator { kind = BinaryOperatorKind.Star;  leftOperand = $1; rightOperand = $3 } }
     | multiplicativeExp SLASH multiplicativeExp { Exp.BinaryOperator { kind = BinaryOperatorKind.Slash; leftOperand = $1; rightOperand = $3 } }
 
 additiveExp
     : multiplicativeExp { $1 }
-	| additiveExp PLUS additiveExp  { Exp.BinaryOperator { kind = BinaryOperatorKind.Plus;  leftOperand = $1; rightOperand = $3 } }
+    | additiveExp PLUS additiveExp  { Exp.BinaryOperator { kind = BinaryOperatorKind.Plus;  leftOperand = $1; rightOperand = $3 } }
     | additiveExp MINUS additiveExp { Exp.BinaryOperator { kind = BinaryOperatorKind.Minus; leftOperand = $1; rightOperand = $3 } }
 
 compareExp
-	: additiveExp { $1 }
-	| compareExp EQUALEQUAL compareExp { Exp.BinaryOperator { kind = BinaryOperatorKind.EqualEqual;   leftOperand = $1; rightOperand = $3 } }
-	| compareExp EXCLEQUAL compareExp  { Exp.BinaryOperator { kind = BinaryOperatorKind.ExclEqual;    leftOperand = $1; rightOperand = $3 } }
-	| compareExp LT compareExp         { Exp.BinaryOperator { kind = BinaryOperatorKind.Less;         leftOperand = $1; rightOperand = $3 } }
-	| compareExp GT compareExp         { Exp.BinaryOperator { kind = BinaryOperatorKind.Greater;      leftOperand = $1; rightOperand = $3 } }
-	| compareExp LTEQUAL compareExp    { Exp.BinaryOperator { kind = BinaryOperatorKind.LessEqual;    leftOperand = $1; rightOperand = $3 } }
-	| compareExp GTEQUAL compareExp    { Exp.BinaryOperator { kind = BinaryOperatorKind.GreaterEqual; leftOperand = $1; rightOperand = $3 } }
+    : additiveExp { $1 }
+    | compareExp EQUALEQUAL compareExp { Exp.BinaryOperator { kind = BinaryOperatorKind.EqualEqual;   leftOperand = $1; rightOperand = $3 } }
+    | compareExp EXCLEQUAL compareExp  { Exp.BinaryOperator { kind = BinaryOperatorKind.ExclEqual;    leftOperand = $1; rightOperand = $3 } }
+    | compareExp LT compareExp         { Exp.BinaryOperator { kind = BinaryOperatorKind.Less;         leftOperand = $1; rightOperand = $3 } }
+    | compareExp GT compareExp         { Exp.BinaryOperator { kind = BinaryOperatorKind.Greater;      leftOperand = $1; rightOperand = $3 } }
+    | compareExp LTEQUAL compareExp    { Exp.BinaryOperator { kind = BinaryOperatorKind.LessEqual;    leftOperand = $1; rightOperand = $3 } }
+    | compareExp GTEQUAL compareExp    { Exp.BinaryOperator { kind = BinaryOperatorKind.GreaterEqual; leftOperand = $1; rightOperand = $3 } }
 
 logicalAndExp
-	: compareExp { $1 }
-	| logicalAndExp AMPERAMPER logicalAndExp { Exp.ShortcutOperator { kind = ShortcutOperatorKind.LogicalAnd; leftOperand = $1; rightOperand = $3 } }
+    : compareExp { $1 }
+    | logicalAndExp AMPERAMPER logicalAndExp { Exp.ShortcutOperator { kind = ShortcutOperatorKind.LogicalAnd; leftOperand = $1; rightOperand = $3 } }
 
 logicalOrExp
-	: logicalAndExp { $1 }
-	| logicalOrExp BARBAR logicalOrExp { Exp.ShortcutOperator { kind = ShortcutOperatorKind.LogicalOr; leftOperand = $1; rightOperand = $3 } }
+    : logicalAndExp { $1 }
+    | logicalOrExp BARBAR logicalOrExp { Exp.ShortcutOperator { kind = ShortcutOperatorKind.LogicalOr; leftOperand = $1; rightOperand = $3 } }
 
 conditionalExp
-	: logicalOrExp { $1 }
-	| conditionalExp QUESTION conditionalExp COLON conditionalExp %prec TERNARY { Exp.Conditional { cond = $1; trueExp = $3; falseExp = $5 } }
+    : logicalOrExp { $1 }
+    | conditionalExp QUESTION conditionalExp COLON conditionalExp %prec TERNARY { Exp.Conditional { cond = $1; trueExp = $3; falseExp = $5 } }
     | conditionalExp QUESTIONQUESTION conditionalExp { Exp.NullConditional { exp = $1; nullExp = $3 } }
 
 assignExp
-	: conditionalExp { $1 }
+    : conditionalExp { $1 }
     | assignExp EQUALS assignExp { Exp.Assign { leftExp = $1; rightExp = $3 } }
 
 exp: assignExp { $1 }
 
 globalFunctionDecl
-	: optionalAsync typeID ID optionalTypeParams LPAREN optionalFuncParams RPAREN optionalTypeParamConstraints LBRACE optionalStmts RBRACE
+    : optionalAsync typeID ID optionalTypeParams LPAREN optionalFuncParams RPAREN optionalTypeParamConstraints LBRACE optionalStmts RBRACE
     { { bAsync = $1; retTypeID = $2; name = $3; typeParams = $4; funcParams = $6; typeParamConstraints = $8; stmts = $10 } }
 
 // classDecl
@@ -385,7 +385,7 @@ fileUnitElem
     : globalFunctionDecl { Func $1 }
 //     | classDecl { Class $1 }
 //     | structDecl { Struct $1 }
-	| interfaceDecl { Interface $1 }
+    | interfaceDecl { Interface $1 }
     | stmt { Stmt $1 }
 
 fileUnitElemsRev
