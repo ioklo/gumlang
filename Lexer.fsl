@@ -71,6 +71,7 @@ rule token = parse
     | "public"    { PUBLIC }
     | "protected"    { PROTECTED }
     | "new"    { NEW }
+    | "var"    { VAR }
     | "virtual"    { VIRTUAL }
     | "override"    { OVERRIDE }
     | "base"    { BASE }

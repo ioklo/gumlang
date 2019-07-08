@@ -11,15 +11,16 @@ type BinaryOperatorKind =
     | Star
     | Slash
     | EqualEqual           // ==
+    | ExclEqual            // !=
     | Less                 
     | LessEqual
     | Greater              // GT, GTEqual은 Less, LessEqual로 변환된다
-    | GreaterEqual         // short circuit으로 따로 처리
+    | GreaterEqual         
 
 
 type ShortcutOperatorKind = 
     | LogicalOr 
-    | LogicalAdd
+    | LogicalAnd
 
 type Accessibility = 
     | Private
@@ -156,14 +157,14 @@ and MemberConstructorDecl = {
     typeParams: TypeParam list
     funcParams: FuncParam list
 
-    baseConstructorArguments: CallArgument list
+    baseConstructorArguments: Arguments
 
     stmts: Stmt list
 }
 
 and VarDecl = {
     varType: TypeID option // implicit 인 경우 type이 존재하지 않는다
-    varDeclItems: VarDeclItem list
+    varDeclElems: VarDeclElem list
 }
 
 and GlobalFuncDecl = {    
@@ -181,9 +182,10 @@ and GlobalFuncDecl = {
 
 and GlobalVarDecl = VarDecl    
 
-and CallArgument = { bOut: bool; exp: Exp }
+and Argument = { bOut: bool; exp: Exp }
+and Arguments = { args: Argument list; paramsExp: Exp option }
 
-and VarDeclItem = { name: string; exp: Exp option }
+and VarDeclElem = { name: string; exp: Exp option }
     
 and Exp = 
     | UnaryOperator of UnaryOperatorExp
@@ -223,10 +225,9 @@ and Stmt =
     | YieldReturn of YieldReturnStmt
     | YieldBreak 
     
-// TODO: CallArgument list를 포함하는 모든 것들에 params 적용
 and UnaryOperatorExp = { kind: UnaryOperatorKind; operand: Exp }
-and BinaryOperatorExp = { kind: BinaryOperatorKind; leftOperand: Exp; rightOperator: Exp }
-and ShortcutOperatorExp = { kind: ShortcutOperatorKind; leftOperand: Exp; rightOperator: Exp }
+and BinaryOperatorExp = { kind: BinaryOperatorKind; leftOperand: Exp; rightOperand: Exp }
+and ShortcutOperatorExp = { kind: ShortcutOperatorKind; leftOperand: Exp; rightOperand: Exp }
 and IndexerExp = { operands: Exp list }
 and IntLiteralExp = { value: int }
 and BoolLiteralExp = { value: bool }
@@ -234,15 +235,15 @@ and StringLiteralExp = { value : string }
 and ListConstructorExp = { elems: Exp list }
 and TupleElem = { name: string option; exp: Exp }
 and TupleConstructorExp = { elems: TupleElem list }
-and IDExp = {name: string; typeArgs: TypeID list }
-and NewExp = { objectType: TypeID; args: CallArgument list; }
+and IDExp = { name: string; typeArgs: TypeID list }
+and NewExp = { objectType: TypeID; args: Arguments }
 
-and CallExp = { funcExp: Exp; args: CallArgument list; paramsExp: Exp option }
+and CallExp = { funcExp: Exp; args: Arguments }
 and AssignExp = { leftExp: Exp; rightExp: Exp }    
 and MemberExp = { exp: Exp; id: IDExp } 
 and ConditionalExp = { cond: Exp; trueExp: Exp; falseExp: Exp } 
 and NullConditionalExp = { exp: Exp; nullExp: Exp }
-and AwaitExp = { callExp: CallExp }
+and AwaitExp = { exp: Exp }
 and RefExp = { exp: Exp } 
 and DerefExp = { exp: Exp } 
 and LaunchExp = { exp: Exp option; parallelStmts: Stmt }
@@ -250,16 +251,16 @@ and LaunchExp = { exp: Exp option; parallelStmts: Stmt }
 and BlockStmt = { stmts: Stmt list }
 and VarDeclStmt = VarDecl
 and ReturnStmt = { exp: Exp option; }
-and IfStmt = { cond: Exp; trueBody: Stmt; falseBody: Stmt }    
-and TypeGuardStmt = { idExp: IDExp; typeGuardType: TypeID; trueBody: Stmt; falseBody: Stmt }
-and WhileStmt = {cond : Exp; body: Stmt; }
+and IfStmt = { cond: Exp; trueBody: Stmt; falseBody: Stmt option }    
+and TypeGuardStmt = { idExp: IDExp; typeGuardType: TypeID; trueBody: Stmt; falseBody: Stmt option }
+and WhileStmt = { cond : Exp; body: Stmt; }
 and DoWhileStmt = { body: Stmt; cond: Exp }
-and ForStmt = { initializer: Stmt; cond: Exp; condExp: Exp; body: Stmt }
+and ForStmt = { initializer: Stmt option; cond: Exp option; condExp: Exp option; body: Stmt }
 and ForeachStmt = { typeParams: TypeParam list; elemType: TypeID option; elemName: string; enumExp: Exp; body: Stmt; } 
 and ExpStmt = { exp: Exp; }
 and YieldReturnStmt = { exp:Exp; }
 
-type FileUnitElement = 
+type FileUnitElem = 
     | Class of ClassDecl
     | Struct of StructDecl
     | Interface of InterfaceDecl
@@ -267,6 +268,6 @@ type FileUnitElement =
     | Stmt of Stmt
 
 type FileUnit = {
-    elems: FileUnitElement list
+    elems: FileUnitElem list
 }
 
