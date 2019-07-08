@@ -192,9 +192,9 @@ optionalStmts
     : { [] }
     | stmtsRev { List.rev($1) } 
 
-blankStmt: SEMICOLON { Stmt.Blank }
-blockStmt: LBRACE optionalStmts RBRACE { Stmt.Block { stmts = $2 } }
-varDeclStmt: varDecl SEMICOLON { Stmt.VarDecl $1 }
+blankStmt: SEMICOLON { }
+blockStmt: LBRACE optionalStmts RBRACE { { stmts = $2 } }
+varDeclStmt: varDecl SEMICOLON { $1 }
 
 varDeclElem
     : ID { { VarDeclElem.name = $1; exp = None } }
@@ -208,26 +208,26 @@ varDecl
     : varOrtypeID varDeclElemsRev { { varType = $1; varDeclElems = List.rev($2) } }
 
 returnStmt
-    : RETURN SEMICOLON { Stmt.Return { exp = None } }
-    | RETURN exp SEMICOLON { Stmt.Return { exp = Some $2 } }
+    : RETURN SEMICOLON { { ReturnStmt.exp = None } }
+    | RETURN exp SEMICOLON { { exp = Some $2 } }
 
-continueStmt: CONTINUE SEMICOLON { Stmt.Continue }
+continueStmt: CONTINUE SEMICOLON { }
 
-breakStmt: BREAK SEMICOLON { Stmt.Break }
+breakStmt: BREAK SEMICOLON { }
 
 ifStmt
-    : IF LPAREN exp RPAREN stmt                     { Stmt.If { cond = $3; trueBody = $5; falseBody = None } }
-    | IF LPAREN exp RPAREN stmt ELSE stmt           { Stmt.If { cond = $3; trueBody = $5; falseBody = Some $7 } }
+    : IF LPAREN exp RPAREN stmt                     { { cond = $3; trueBody = $5; falseBody = None } }
+    | IF LPAREN exp RPAREN stmt ELSE stmt           { { cond = $3; trueBody = $5; falseBody = Some $7 } }
 
 typeGuardStmt
-    : IF LPAREN idExp IS typeID RPAREN stmt           { Stmt.TypeGuard { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = None } } 
-    | IF LPAREN idExp IS typeID RPAREN stmt ELSE stmt { Stmt.TypeGuard { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = Some $9 } }
+    : IF LPAREN idExp IS typeID RPAREN stmt           { { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = None } } 
+    | IF LPAREN idExp IS typeID RPAREN stmt ELSE stmt { { idExp = $3; typeGuardType = $5; trueBody = $7; falseBody = Some $9 } }
 
 whileStmt
-    : WHILE LPAREN exp RPAREN stmt { Stmt.While { cond = $3; body = $5 } }
+    : WHILE LPAREN exp RPAREN stmt { { WhileStmt.cond = $3; body = $5 } }
 
 doWhileStmt
-    : DO stmt WHILE LPAREN exp RPAREN { Stmt.DoWhile { body = $2; cond = $5 } }
+    : DO stmt WHILE LPAREN exp RPAREN { { DoWhileStmt.body = $2; cond = $5 } }
 
 optionalForInit
     :         { None }
@@ -240,35 +240,34 @@ optionalExp
 
 forStmt
     : FOR LPAREN optionalForInit SEMICOLON optionalExp SEMICOLON optionalExp RPAREN stmt
-    { Stmt.For { initializer = $3; cond = $5; condExp = $7; body= $9 } }
+    { { initializer = $3; cond = $5; condExp = $7; body= $9 } }
 
 foreachStmt
     : FOREACH optionalTypeParams LPAREN varOrtypeID ID IN exp RPAREN stmt
-    { Stmt.Foreach { typeParams = $2; elemType = $4; elemName = $5; enumExp = $7; body = $9 } }
+    { { typeParams = $2; elemType = $4; elemName = $5; enumExp = $7; body = $9 } }
 
 expStmt
-    : exp SEMICOLON { Stmt.Exp { exp = $1 } }
+    : exp SEMICOLON { { ExpStmt.exp = $1 } }
 
-yieldBreakStmt: YIELD BREAK SEMICOLON { Stmt.YieldBreak }
-
-yieldReturnStmt: YIELD RETURN exp SEMICOLON {Stmt.YieldReturn { exp = $3 } }
+yieldBreakStmt: YIELD BREAK SEMICOLON { }
+yieldReturnStmt: YIELD RETURN exp SEMICOLON { { YieldReturnStmt.exp = $3 } }
 
 stmt
-    : blankStmt { $1 }
-    | blockStmt { $1 }
-    | varDeclStmt { $1 }
-    | returnStmt { $1 }
-    | continueStmt { $1 }
-    | breakStmt { $1 }
-    | ifStmt { $1 }
-    | typeGuardStmt { $1 }
-    | whileStmt { $1 }
-    | doWhileStmt { $1 }
-    | forStmt { $1 }
-    | foreachStmt { $1 }
-    | expStmt { $1 }
-    | yieldBreakStmt { $1 }
-    | yieldReturnStmt { $1 }
+    : blankStmt         { Stmt.Blank }
+    | blockStmt         { Stmt.Block $1 }
+    | varDeclStmt       { Stmt.VarDecl $1 }
+    | returnStmt        { Stmt.Return $1 }
+    | continueStmt      { Stmt.Continue }
+    | breakStmt         { Stmt.Break }
+    | ifStmt            { Stmt.If $1 }
+    | typeGuardStmt     { Stmt.TypeGuard $1 }
+    | whileStmt         { Stmt.While $1 }
+    | doWhileStmt       { Stmt.DoWhile $1 }
+    | forStmt           { Stmt.For $1 }
+    | foreachStmt       { Stmt.Foreach $1 }
+    | expStmt           { Stmt.Exp $1 }
+    | yieldBreakStmt    { Stmt.YieldBreak }
+    | yieldReturnStmt   { Stmt.YieldReturn $1 }
 
 tupleElemExp
     : ID COLON exp { { name = Some $1; exp = $3 } }
